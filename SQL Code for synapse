@@ -1,0 +1,71 @@
+1. Code to view all data
+
+SELECT
+     *
+FROM
+    OPENROWSET(
+        BULK 'https://olistdata.dfs.core.windows.net/olistdata/silver/',
+        FORMAT = 'PARQUET'
+    ) AS result1
+
+--- https://olistdata.blob.core.windows.net/olistdata/silver/
+
+2. Create View
+
+create schema gold
+
+create view gold.final 
+as 
+SELECT
+     *
+FROM
+    OPENROWSET(
+        BULK 'https://olistdata.dfs.core.windows.net/olistdata/silver/',
+        FORMAT = 'PARQUET'
+    ) AS result1
+
+select * from gold.final
+
+3. Create View 2
+
+create view gold.final2
+as 
+SELECT
+     *
+FROM
+    OPENROWSET(
+        BULK 'https://olistdata.dfs.core.windows.net/olistdata/silver/',
+        FORMAT = 'PARQUET'
+    ) AS result1
+where order_status = 'delivered'
+
+select * from gold.final2
+
+4. SQL to Gold layer
+
+-- CREATE MASTER KEY ENCRYPTION BY PASSWORD = '@Maddy9020';
+-- CREATE DATABASE SCOPED CREDENTIAL maddy WITH IDENTITY = 'Managed Identity';
+
+--- select * from sys.database_credentials
+
+CREATE EXTERNAL FILE FORMAT extfileformat WITH (
+    FORMAT_TYPE = PARQUET,
+    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'
+);
+
+CREATE EXTERNAL DATA SOURCE goldlayer WITH (
+    LOCATION = 'https://olistdata.dfs.core.windows.net/olistdata/gold/',
+    CREDENTIAL = maddy
+);
+
+
+CREATE EXTERNAL TABLE gold.finaltable WITH (
+        LOCATION = 'Serving',
+        DATA_SOURCE = goldlayer,
+        FILE_FORMAT = extfileformat
+) AS
+SELECT * FROM gold.final2;
+
+select * from gold.finaltable
+
+select * from gold.final2
