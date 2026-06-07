@@ -55,7 +55,7 @@ Key Stages:
 | **Version Control**      | GitHub                                                                                  |
 | **Data Flow Layers**     | Bronze → Silver → Gold                                                                  |
 
-## 🧰 Steps to Reproduce
+## 🧰 Steps to Simulate
 
 **1️⃣ Local Environment Setup**
 * Install dependencies:
